@@ -75,6 +75,9 @@ Third-Party → [NOTICE.md](./NOTICE.md)
 
 ## English
 
+> [!NOTE]
+> This repository is not an agent skill itself. It is a simple synchronization tool.
+
 ### Overview
 A CLI tool designed to synchronize skills managed under universal agent specifications (`~/.agents/skills/`) to Google Antigravity's global skills directory (`~/.gemini/config/skills/`) via physical directory copying.
 
