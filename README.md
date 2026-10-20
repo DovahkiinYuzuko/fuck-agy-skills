@@ -10,6 +10,9 @@ Agent Skills（~/.agents/skills）をGoogle Antigravity（~/.gemini/config/skill
 
 ## 日本語
 
+> [!NOTE]
+> このリポジトリはエージェントスキルそのものではありません。単純な同期ツールです。
+
 ### 概要
 汎用エージェントスキル規格（`~/.agents/skills/`）で管理されているスキル群を、Google Antigravityのグローバルスキル探索先（`~/.gemini/config/skills/`）へ実体フォルダとして同期するためのCLIツールです。
 
