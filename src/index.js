@@ -11,6 +11,19 @@ import {
 } from './config.js';
 import { runSync } from './synchronizer.js';
 
+// ANSI color escape sequences
+const c = {
+  reset: '\x1b[0m',
+  bold: '\x1b[1m',
+  dim: '\x1b[2m',
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  magenta: '\x1b[35m',
+  cyan: '\x1b[36m',
+  gray: '\x1b[90m',
+};
+
 /**
  * Checks if the process should be respawned with Bun.
  * @returns {boolean}
@@ -60,7 +73,7 @@ export function respawnWithBun() {
   });
 
   child.on('error', (err) => {
-    console.warn(`[WARN] Failed to spawn Bun runtime (${err.message}). Falling back to Node.js.`);
+    console.warn(`${c.yellow}[WARN]${c.reset} Failed to spawn Bun runtime (${err.message}). Falling back to Node.js.`);
   });
 }
 
@@ -69,14 +82,14 @@ export function respawnWithBun() {
  */
 export function printHelp() {
   console.log(`
-fuck-agy-skills - Bridge Agent Skills (~/.agents/skills) to Google Antigravity (~/.gemini/config/skills)
+${c.bold}${c.cyan}fuck-agy-skills${c.reset} - Bridge Agent Skills (~/.agents/skills) to Google Antigravity (~/.gemini/config/skills)
 
-Usage:
+${c.bold}Usage:${c.reset}
   fuck-agy-skills [options]
   fuck-agy-skills config <action> [key] [value]
 
-Main Options (Synchronization):
-  -c, --config <path>     Path to config.toml (defaults to priority lookup)
+${c.bold}Main Options (Synchronization):${c.reset}
+  -c, --config <path>     Path to config.toml (defaults to package directory)
   -s, --source <path>     Override source directory for this run
   -t, --target <path>     Override target directory for this run
   -e, --exclude <list>    Comma-separated list of skill names to exclude
@@ -86,7 +99,7 @@ Main Options (Synchronization):
   -h, --help              Show this detailed help message
   -v, --version           Show CLI version
 
-Configuration Management Subcommands:
+${c.bold}Configuration Management Subcommands:${c.reset}
   fuck-agy-skills config path
       Display the absolute path of the active config.toml.
 
@@ -103,9 +116,9 @@ Configuration Management Subcommands:
 
   fuck-agy-skills config init [path]
       Initialize a new default config.toml with English documentation.
-      Defaults to ~/.config/fuck-agy-skills/config.toml if path is not specified.
+      Defaults to the package directory if path is not specified.
 
-Safety & Architecture:
+${c.bold}Safety & Architecture:${c.reset}
   - Sync Ledger: All synced skills are tracked in .fuck-agy-cache.json.
     Any native Antigravity skills existing in target are strictly protected
     and will NEVER be deleted by --clean.
@@ -131,7 +144,7 @@ export async function handleConfigSubcommand(args, customConfigPath = null) {
   if (action === 'init') {
     const targetPath = args[1] ?? (customConfigPath || null);
     const createdPath = await createDefaultConfigFile(targetPath ?? (await ensureConfigFile()).filePath);
-    console.log(`[SUCCESS] Configuration initialized at: ${createdPath}`);
+    console.log(`${c.green}[SUCCESS]${c.reset} Configuration initialized at: ${c.bold}${createdPath}${c.reset}`);
     return 0;
   }
 
@@ -148,7 +161,7 @@ export async function handleConfigSubcommand(args, customConfigPath = null) {
       if (key in config) {
         console.log(typeof config[key] === 'object' ? JSON.stringify(config[key], null, 2) : config[key]);
       } else {
-        console.error(`[ERROR] Unknown configuration key: "${key}"`);
+        console.error(`${c.red}[ERROR]${c.reset} Unknown configuration key: "${key}"`);
         return 1;
       }
     } else {
@@ -161,16 +174,16 @@ export async function handleConfigSubcommand(args, customConfigPath = null) {
     const key = args[1];
     const rawValue = args[2];
     if (!key || rawValue === undefined) {
-      console.error('[ERROR] Usage: fuck-agy-skills config set <key> <value>');
+      console.error(`${c.red}[ERROR]${c.reset} Usage: fuck-agy-skills config set <key> <value>`);
       return 1;
     }
     const updated = await saveConfigValue(filePath, key, rawValue);
-    console.log(`[SUCCESS] Updated "${key}" in ${filePath}:`);
+    console.log(`${c.green}[SUCCESS]${c.reset} Updated "${c.bold}${key}${c.reset}" in ${filePath}:`);
     console.log(`  ${key} = ${JSON.stringify(updated[key])}`);
     return 0;
   }
 
-  console.error(`[ERROR] Unknown config action: "${action}". Use "fuck-agy-skills --help" for guidance.`);
+  console.error(`${c.red}[ERROR]${c.reset} Unknown config action: "${action}". Use "fuck-agy-skills --help" for guidance.`);
   return 1;
 }
 
@@ -195,7 +208,7 @@ export async function main(argv = process.argv.slice(2)) {
       return 0;
     }
     if (arg === '-v' || arg === '--version') {
-      console.log('fuck-agy-skills v0.1.0');
+      console.log(`${c.bold}fuck-agy-skills${c.reset} v0.1.0`);
       return 0;
     }
     if (arg === '-d' || arg === '--dry-run') {
@@ -208,63 +221,63 @@ export async function main(argv = process.argv.slice(2)) {
       if (i + 1 < argv.length) {
         customConfig = argv[++i];
       } else {
-        console.error('[ERROR] Option --config requires a path argument.');
+        console.error(`${c.red}[ERROR]${c.reset} Option --config requires a path argument.`);
         return 1;
       }
     } else if (arg === '-s' || arg === '--source') {
       if (i + 1 < argv.length) {
         cliOptions.source = argv[++i];
       } else {
-        console.error('[ERROR] Option --source requires a path argument.');
+        console.error(`${c.red}[ERROR]${c.reset} Option --source requires a path argument.`);
         return 1;
       }
     } else if (arg === '-t' || arg === '--target') {
       if (i + 1 < argv.length) {
         cliOptions.target = argv[++i];
       } else {
-        console.error('[ERROR] Option --target requires a path argument.');
+        console.error(`${c.red}[ERROR]${c.reset} Option --target requires a path argument.`);
         return 1;
       }
     } else if (arg === '-e' || arg === '--exclude') {
       if (i + 1 < argv.length) {
         cliOptions.exclude = argv[++i].split(',').map((s) => s.trim()).filter(Boolean);
       } else {
-        console.error('[ERROR] Option --exclude requires a list argument.');
+        console.error(`${c.red}[ERROR]${c.reset} Option --exclude requires a list argument.`);
         return 1;
       }
     } else {
-      console.warn(`[WARN] Unknown option: "${arg}". Ignoring.`);
+      console.warn(`${c.yellow}[WARN]${c.reset} Unknown option: "${arg}". Ignoring.`);
     }
   }
 
   const runtimeName = process.versions.bun ? `Bun ${process.versions.bun}` : `Node.js ${process.version}`;
-  console.log(`[INFO] fuck-agy-skills v0.1.0 starting (Runtime: ${runtimeName})...`);
+  console.log(`${c.cyan}[INFO]${c.reset} ${c.bold}fuck-agy-skills v0.1.0${c.reset} starting (Runtime: ${c.green}${runtimeName}${c.reset})...`);
   if (dryRun) {
-    console.log('[INFO] Running in DRY-RUN mode. No files will be modified.');
+    console.log(`${c.yellow}[INFO] Running in DRY-RUN mode. No files will be modified.${c.reset}`);
   }
 
   try {
     const { config: baseConfig, filePath } = await loadConfig(customConfig);
     const config = mergeCliOverrides(baseConfig, cliOptions);
 
-    console.log(`[INFO] Config : ${filePath}`);
-    console.log(`[INFO] Source : ${config.source}`);
-    console.log(`[INFO] Target : ${config.target}`);
-    console.log(`[INFO] Clean  : ${config.clean_deleted ? 'enabled (ledger-safe)' : 'disabled'}`);
+    console.log(`${c.cyan}[INFO]${c.reset} Config : ${c.dim}${filePath}${c.reset}`);
+    console.log(`${c.cyan}[INFO]${c.reset} Source : ${config.source}`);
+    console.log(`${c.cyan}[INFO]${c.reset} Target : ${config.target}`);
+    console.log(`${c.cyan}[INFO]${c.reset} Clean  : ${config.clean_deleted ? `${c.yellow}enabled (ledger-safe)${c.reset}` : `${c.dim}disabled${c.reset}`}`);
     if (config.exclude.length > 0) {
-      console.log(`[INFO] Exclude: ${config.exclude.join(', ')}`);
+      console.log(`${c.cyan}[INFO]${c.reset} Exclude: ${c.dim}${config.exclude.join(', ')}${c.reset}`);
     }
 
     const result = await runSync(config, { dryRun });
 
-    console.log(`\n[SUMMARY] Synchronization complete${dryRun ? ' (dry-run)' : ''}:`);
-    console.log(`  - Copied  : ${result.copied}`);
-    console.log(`  - Skipped : ${result.skipped}`);
-    console.log(`  - Cleaned : ${result.cleaned}`);
-    console.log(`  - Errors  : ${result.errors}`);
+    console.log(`\n${c.bold}[SUMMARY] Synchronization complete${dryRun ? ' (dry-run)' : ''}:${c.reset}`);
+    console.log(`  - Copied  : ${c.green}${result.copied}${c.reset}`);
+    console.log(`  - Skipped : ${result.skipped > 0 ? `${c.yellow}${result.skipped}${c.reset}` : '0'}`);
+    console.log(`  - Cleaned : ${result.cleaned > 0 ? `${c.magenta}${result.cleaned}${c.reset}` : '0'}`);
+    console.log(`  - Errors  : ${result.errors > 0 ? `${c.bold}${c.red}${result.errors}${c.reset}` : `${c.gray}0${c.reset}`}`);
 
     if (result.errors > 0) {
-      console.error('\n[WARNING] Completed with errors:');
+      console.error(`\n${c.red}[WARNING] Completed with errors:${c.reset}`);
       for (const item of result.details) {
         if (item.status === 'failed') {
           console.error(`  - ${item.skill}: ${item.error}`);
@@ -275,7 +288,7 @@ export async function main(argv = process.argv.slice(2)) {
 
     return 0;
   } catch (err) {
-    console.error(`\n[FATAL] Synchronization failed: ${err.message}`);
+    console.error(`\n${c.red}[FATAL] Synchronization failed: ${err.message}${c.reset}`);
     return 1;
   }
 }
