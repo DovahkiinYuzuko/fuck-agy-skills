@@ -51,7 +51,7 @@ export function expandHomePath(filePath) {
  * Returns the package's root config.toml path.
  * @returns {string}
  */
-export function getPackageConfigPath() {
+function getPackageConfigPath() {
   const pkgDir = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
   return path.resolve(pkgDir, '../config.toml');
 }
@@ -73,16 +73,7 @@ export async function findConfigFile(customPath = null) {
     return null;
   }
 
-  // 1. Current working directory
-  const cwdConfig = path.resolve(process.cwd(), 'config.toml');
-  try {
-    const stat = await fs.stat(cwdConfig);
-    if (stat.isFile()) {
-      return cwdConfig;
-    }
-  } catch {}
-
-  // 2. Package / install root directory
+  // Package / install root directory
   try {
     const packageConfig = getPackageConfigPath();
     const stat = await fs.stat(packageConfig);

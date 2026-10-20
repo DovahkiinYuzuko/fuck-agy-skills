@@ -13,7 +13,10 @@ Agent Skills（~/.agents/skills）をGoogle Antigravity（~/.gemini/config/skill
 ### 概要
 汎用エージェントスキル規格（`~/.agents/skills/`）で管理されているスキル群を、Google Antigravityのグローバルスキル探索先（`~/.gemini/config/skills/`）へ実体フォルダとして同期するためのCLIツールです。
 
-Windows環境において、Antigravityのスキャナがジャンクションやシンボリックリンク先を認識しない制約を解消します。
+### 開発経緯
+オープンなスキル管理規格（`npx skills add` 等）でインストールされたグローバルスキルは `~/.agents/skills/` に配置されます。しかし、現行のGoogle Antigravity環境（特にAntigravity 2.0やAntigravity IDE）ではグローバルスキルの探索先が `~/.gemini/config/skills/` に固定されており、Windows環境下ではジャンクション（シンボリックリンク）を配置してもスキャナがリンク先を追跡・認識しません。
+
+公式環境がグローバルな `~/.agents/skills/` を標準で完全に読み込むようになれば本ツールは不要となりますが、現状の手動同期に伴う不要な手間を解消するために本ツールが作成されました。
 
 ### 特徴
 - **クロスランタイムと自動昇格**: Node.jsおよびBunに対応しています。PATH上に `bun` が存在する場合はBunランタイムで再起動して実行します。
@@ -37,28 +40,27 @@ npm link
 
 ### コマンド一覧
 
-| コマンド | 説明 | 用例 |
+| オプション / サブコマンド | 説明 | 用例 |
 | :--- | :--- | :--- |
-| `fuck-agy-skills` | スキルを同期先に実体コピーします。 | `fuck-agy-skills` |
-| `fuck-agy-skills -d, --dry-run` | ファイルの変更を行わずにシミュレーション結果を表示します。 | `fuck-agy-skills --dry-run` |
-| `fuck-agy-skills --clean` | ソース側で削除されたスキルを同期先からも削除します（台帳追跡対象のみ）。 | `fuck-agy-skills --clean` |
-| `fuck-agy-skills --no-clean` | 削除クリーンアップを無効化して実行します。 | `fuck-agy-skills --no-clean` |
-| `fuck-agy-skills -s, --source <path>` | 一時的に同期元ディレクトリを変更して実行します。 | `fuck-agy-skills --source "C:/path/to/skills"` |
-| `fuck-agy-skills -t, --target <path>` | 一時的に同期先ディレクトリを変更して実行します。 | `fuck-agy-skills --target "C:/path/to/target"` |
-| `fuck-agy-skills -e, --exclude <list>` | 一時的に除外するスキル名をカンマ区切りで指定します。 | `fuck-agy-skills --exclude "skill-a,skill-b"` |
-| `fuck-agy-skills -c, --config <path>` | 指定した設定ファイルを使用して実行します。 | `fuck-agy-skills --config "./custom-config.toml"` |
-| `fuck-agy-skills config path` | 現在参照されている設定ファイルの絶対パスを表示します。 | `fuck-agy-skills config path` |
-| `fuck-agy-skills config get [key]` | 現在の設定値（または全体）を表示します。 | `fuck-agy-skills config get clean_deleted` |
-| `fuck-agy-skills config set <key> <value>` | 設定ファイルの値を更新・保存します。 | `fuck-agy-skills config set clean_deleted true` |
-| `fuck-agy-skills config init [path]` | デフォルト設定ファイルを新規生成します。 | `fuck-agy-skills config init` |
-| `fuck-agy-skills -h, --help` | ヘルプメッセージを表示します。 | `fuck-agy-skills --help` |
-| `fuck-agy-skills -v, --version` | バージョン情報を表示します。 | `fuck-agy-skills --version` |
+| *(指定なし)* | スキルを同期先に実体コピーします。 | `fuck-agy-skills` |
+| `-d, --dry-run` | ファイル変更を伴わずにシミュレーション結果を表示します。 | `fuck-agy-skills --dry-run` |
+| `--clean` | ソース側で削除されたスキルを同期先からも削除します。 | `fuck-agy-skills --clean` |
+| `--no-clean` | 削除クリーンアップを無効化して実行します。 | `fuck-agy-skills --no-clean` |
+| `-s, --source <path>` | 一時的に同期元ディレクトリを変更します。 | `fuck-agy-skills --source "C:/path/to/skills"` |
+| `-t, --target <path>` | 一時的に同期先ディレクトリを変更します。 | `fuck-agy-skills --target "C:/path/to/target"` |
+| `-e, --exclude <list>` | 一時的に除外するスキル名をカンマ区切りで指定します。 | `fuck-agy-skills --exclude "skill-a,skill-b"` |
+| `-c, --config <path>` | 指定した設定ファイルを使用して実行します。 | `fuck-agy-skills --config "./my-config.toml"` |
+| `config path` | 現在参照されている設定ファイルの絶対パスを表示します。 | `fuck-agy-skills config path` |
+| `config get [key]` | 現在の設定値（または全体）を表示します。 | `fuck-agy-skills config get clean_deleted` |
+| `config set <key> <value>` | 設定ファイルの値を更新・保存します。 | `fuck-agy-skills config set clean_deleted true` |
+| `config init [path]` | デフォルト設定ファイルを新規生成します。 | `fuck-agy-skills config init` |
+| `-h, --help` | ヘルプメッセージを表示します。 | `fuck-agy-skills --help` |
+| `-v, --version` | バージョン情報を表示します。 | `fuck-agy-skills --version` |
 
 ### 設定管理
-設定ファイル（`config.toml`）は以下の優先順位で探索されます。
+設定ファイル（`config.toml`）は以下の優先順位で探索されます。他プロジェクトの設定ファイルとの衝突を防ぐため、カレントディレクトリからの暗黙的な自動読み込みは行いません。
 1. `--config <path>` オプション
-2. カレント作業ディレクトリ（`./config.toml`）
-3. ツール自身のインストールディレクトリ直下の `config.toml`
+2. ツール自身のインストールディレクトリ直下の `config.toml`
 
 設定ファイルが存在しない場合、初回実行時にツール自身のインストールディレクトリ直下に `config.toml` が自動生成されます。
 
@@ -73,7 +75,10 @@ Third-Party → [NOTICE.md](./NOTICE.md)
 ### Overview
 A CLI tool designed to synchronize skills managed under universal agent specifications (`~/.agents/skills/`) to Google Antigravity's global skills directory (`~/.gemini/config/skills/`) via physical directory copying.
 
-This tool resolves the issue on Windows where Antigravity's scanner fails to recognize directory junctions or symbolic links.
+### Why This Exists
+Global skills installed via open skill management specifications (such as `npx skills add`) are placed in `~/.agents/skills/`. However, under current Google Antigravity environments (particularly Antigravity 2.0 and Antigravity IDE), global skill discovery is restricted to `~/.gemini/config/skills/`. Furthermore, on Windows, Antigravity's scanner does not follow or recognize directory junctions or symbolic links.
+
+While this tool will become obsolete once the official Antigravity environment fully supports global `~/.agents/skills/` natively, it was created to eliminate the unnecessary friction caused by manual synchronization.
 
 ### Features
 - **Cross-Runtime & Auto-Elevation**: Supports both Node.js and Bun. If `bun` is available in your PATH, it restarts under the Bun runtime to execute.
@@ -97,28 +102,27 @@ npm link
 
 ### Commands
 
-| Command | Description | Example |
+| Option / Subcommand | Description | Example |
 | :--- | :--- | :--- |
-| `fuck-agy-skills` | Synchronizes skills to target directory via physical copying. | `fuck-agy-skills` |
-| `fuck-agy-skills -d, --dry-run` | Simulates synchronization without modifying files. | `fuck-agy-skills --dry-run` |
-| `fuck-agy-skills --clean` | Deletes skills from target that were removed from source (ledger-tracked only). | `fuck-agy-skills --clean` |
-| `fuck-agy-skills --no-clean` | Disables deletion cleanup for the current run. | `fuck-agy-skills --no-clean` |
-| `fuck-agy-skills -s, --source <path>` | Temporarily overrides the source directory. | `fuck-agy-skills --source "C:/path/to/skills"` |
-| `fuck-agy-skills -t, --target <path>` | Temporarily overrides the target directory. | `fuck-agy-skills --target "C:/path/to/target"` |
-| `fuck-agy-skills -e, --exclude <list>` | Specifies a comma-separated list of skills to exclude. | `fuck-agy-skills --exclude "skill-a,skill-b"` |
-| `fuck-agy-skills -c, --config <path>` | Executes using a custom configuration file. | `fuck-agy-skills --config "./custom-config.toml"` |
-| `fuck-agy-skills config path` | Displays the absolute path of the active configuration file. | `fuck-agy-skills config path` |
-| `fuck-agy-skills config get [key]` | Displays configuration values (or all settings if key is omitted). | `fuck-agy-skills config get clean_deleted` |
-| `fuck-agy-skills config set <key> <value>` | Updates and persists a setting in `config.toml`. | `fuck-agy-skills config set clean_deleted true` |
-| `fuck-agy-skills config init [path]` | Generates a new default configuration file. | `fuck-agy-skills config init` |
-| `fuck-agy-skills -h, --help` | Displays help message. | `fuck-agy-skills --help` |
-| `fuck-agy-skills -v, --version` | Displays version information. | `fuck-agy-skills --version` |
+| *(None)* | Synchronizes skills to target directory via physical copying. | `fuck-agy-skills` |
+| `-d, --dry-run` | Simulates synchronization without modifying files. | `fuck-agy-skills --dry-run` |
+| `--clean` | Deletes skills from target that were removed from source (ledger-tracked only). | `fuck-agy-skills --clean` |
+| `--no-clean` | Disables deletion cleanup for the current run. | `fuck-agy-skills --no-clean` |
+| `-s, --source <path>` | Temporarily overrides the source directory. | `fuck-agy-skills --source "C:/path/to/skills"` |
+| `-t, --target <path>` | Temporarily overrides the target directory. | `fuck-agy-skills --target "C:/path/to/target"` |
+| `-e, --exclude <list>` | Specifies a comma-separated list of skills to exclude. | `fuck-agy-skills --exclude "skill-a,skill-b"` |
+| `-c, --config <path>` | Executes using a custom configuration file. | `fuck-agy-skills --config "./my-config.toml"` |
+| `config path` | Displays the absolute path of the active configuration file. | `fuck-agy-skills config path` |
+| `config get [key]` | Displays configuration values (or all settings if key is omitted). | `fuck-agy-skills config get clean_deleted` |
+| `config set <key> <value>` | Updates and persists a setting in `config.toml`. | `fuck-agy-skills config set clean_deleted true` |
+| `config init [path]` | Generates a new default configuration file. | `fuck-agy-skills config init` |
+| `-h, --help` | Displays help message. | `fuck-agy-skills --help` |
+| `-v, --version` | Displays version information. | `fuck-agy-skills --version` |
 
 ### Configuration Management
-Configuration files (`config.toml`) are resolved using the following priority:
+Configuration files (`config.toml`) are resolved using the following priority. To prevent collisions with other projects, automatic implicit lookup from the current working directory is disabled:
 1. `--config <path>` option
-2. Current working directory (`./config.toml`)
-3. Package installation directory
+2. Package installation directory
 
 If no configuration file exists, `config.toml` is created automatically in the package installation directory on initial run.
 
