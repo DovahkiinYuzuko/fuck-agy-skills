@@ -1,6 +1,6 @@
 # fuck-agy-skills
 
-Agent Skills（~/.agents/skills）をGoogle Antigravity（~/.gemini/config/skills）へ物理コピーで同期するCLIツール / CLI tool that synchronizes Agent Skills (~/.agents/skills) to Google Antigravity (~/.gemini/config/skills) via physical directory copying
+Agent Skills（`~/.agents/skills`）をGoogle Antigravity（`~/.gemini/config/skills`）へ物理コピーで同期するCLIツール / CLI tool that synchronizes Agent Skills (`~/.agents/skills`) to Google Antigravity (`~/.gemini/config/skills`) via physical directory copying
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 ![Bun](https://img.shields.io/badge/Bun-1.0+-000000?style=flat-square&logo=bun&logoColor=white)
