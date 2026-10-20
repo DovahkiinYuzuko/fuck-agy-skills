@@ -1,0 +1,13 @@
+# project:fuck-agy-skills
+*
+!.gitignore
+# ---AUTO-Generated---
+# .gitignores/root.gitignore
+!README.md
+!LICENSE.*
+!NOTICE.md
+
+!package.json
+# .gitignores/src.gitignore
+!src/
+!src/*.js
